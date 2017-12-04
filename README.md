@@ -1,4 +1,7 @@
-# Index and Search Tool
+# Muninn
+In Norse mythology, Huginn (from Old Norse "thought") and Muninn (Old Norse "memory" or "mind") are a pair of ravens that fly all over the world, Midgard, and bring information to the god Odin [Wikipedia](https://en.wikipedia.org/wiki/Huginn_and_Muninn)
+
+## Index and Search Tool
 These tools are made for indexing and searching directories.  Currently the code indexes '.ipynb','.Rmd','.md', and '.html' files.  A search portal is served using Dash, Dash beta datatables, and Whoosh search capabilities.
 
 Users can select a single row from the results table to have the content rendered to the browser.
