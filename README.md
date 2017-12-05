@@ -51,3 +51,11 @@ pip install -r requirements.txt
 <your path to python3> <your path>/dash.py \ 
 -d <your path>/<your index filename> 
 ```
+
+### Docker image
+A dockerfile is included with the project to build an image to host the search tool:
+
+```
+docker build -t my_search_app .
+docker run -v <full path to folder to index>:/my_input -p 9999:8050 my_search_app
+```
