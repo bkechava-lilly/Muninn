@@ -7,3 +7,4 @@ Whoosh==2.7.4
 markdown2==2.3.4
 nbformat==4.3.0
 dash==0.17.7
+dash-renderer==0.10.0
