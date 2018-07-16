@@ -1,4 +1,3 @@
-#!/lrlhps/users/c180489/py3/bin/python
 # title                 :document_processing.py
 # description           :helper code for document processing/conversion
 # author                :Bobak (c180489)
@@ -25,33 +24,40 @@
 Helper functions for document processing and conversion
 """
 
-import sys
-import itertools
+import builtins
 import glob
+import itertools
 import os
+import sys
 
 # For document conversion
 import markdown2
+
 import nbconvert
+
 import nbformat
 
-
-def eprint(*args, **kwargs):
-    """
-    Helper to print errors/exceptions to
-    stderr, this is because this tool
-    is currently used in a cron job
-    """
-    print(*args, file=sys.stderr, **kwargs)
+import document_indexer
 
 
 # Use grip library to convert md files to html
 def md_to_html(file_path):
     """
-    Use the markdown2 library to convert MD files
-    to html
+    Return html files from markdown.
 
-    :param file_path: path to markdown file
+    Currently the makrdown2 module is downgraded for the XSS
+    vulnerability.
+
+    Parameters
+    ----------
+    file_path: string
+        path to markdown file
+
+    Returns
+    -------
+    boolean
+        Whether or not this completed sucessfully
+
     """
     try:
         if os.path.exists(file_path) and '.md' in file_path:
@@ -66,7 +72,7 @@ def md_to_html(file_path):
             return True
         return False
     except PermissionError as exception:
-        eprint(str(exception))
+        sys.stderr.write(str(exception))
         return False
     return False
 
@@ -74,10 +80,18 @@ def md_to_html(file_path):
 # nbconvert to change .ipynb to html
 def ipynb_to_html(file_path):
     """
-    Use the nbconvert python library to manage the
-    .ipynb conversion
+    Return html using nbconvert module for .ipynb's .
 
-    :param file_path: path to ipynb file
+    Parameters
+    ----------
+    file_path: string
+        path to ipynb file
+
+    Returns
+    -------
+    boolean
+        Whether or not this completed succesfully
+
     """
     try:
         if os.path.exists(file_path) and '.ipynb' in file_path:
@@ -96,22 +110,20 @@ def ipynb_to_html(file_path):
                 out_file = open(out_file_name, 'w')
                 out_file.write(body)
                 out_file.close()
+                return True
             except PermissionError as exception:
-                eprint(str(exception))
+                sys.stderr.write(str(exception))
+                return False
         else:
             return False
     except PermissionError as exception:
-        eprint(str(exception))
+        sys.stderr.write(str(exception))
+        return False
 
 
 # There is probably a more perfomant way to do this
 def glob_multiple_types(my_dir, *patterns):
-
-    """
-    Gathers files matching multiple patterns
-    from a desired directory
-    """
-
+    """Return files matching multiple patterns from a desired directory."""
     return itertools.chain.from_iterable(
         glob.iglob(my_dir+"/**/"+pattern,
                    recursive=True) for pattern in patterns)
@@ -121,8 +133,7 @@ def glob_multiple_types(my_dir, *patterns):
 # file types
 def get_file_names(my_dir):
     """
-    Get all the files in the supplied directory that
-    match the file extension patterns
+    Return files in the directory that match the file extension patterns.
 
     Todo:
         - parameterize the file extensions
@@ -138,6 +149,8 @@ def get_file_names(my_dir):
 
 def prep_html(file_type, file_path):
     """
+    Return a dict of methods for file processing.
+
     Get a mapping of file types observed
     and what method needs to be used to convert
     them
@@ -145,11 +158,33 @@ def prep_html(file_type, file_path):
     :param file_type: file extension/type
     :param file_path: path to the file
     """
-
     # Method mapping
     methods = {'.md': md_to_html,
                '.ipynb': ipynb_to_html}
     # The actual execution that occurs
     if file_type in methods and os.path.exists(file_path):
         methods[file_type](file_path)
-        return True
+    return methods
+
+
+def crawl_and_process(out_file, input_dir):
+    """
+    Return whoosh index from given directory.
+
+    Crawl and process files to convert documents to html
+    then rebuild the whoosh index.
+    """
+    # Get all the files we need to convert
+    files = get_file_names(input_dir)
+    # Go through each of the files and then
+    # convert the md and ipynb files to html
+
+    for my_file in files:
+        # do this to bypass any reveal.js content
+        # from notebook slides
+        if not builtins.any(word in my_file for word in ['reveal', 'ai_py']):
+            _, file_ext = os.path.splitext(my_file)
+            prep_html(file_ext, my_file)
+
+    # Regenerate the index
+    document_indexer.gen_index(input_dir, out_file)

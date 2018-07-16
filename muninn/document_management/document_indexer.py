@@ -1,4 +1,3 @@
-#!/lrlhps/users/c180489/py3/bin/python
 # title                 :document_indexer.py
 # description           :POC for indexing ipynb and rmd files
 # author                :Bobak (c180489)
@@ -31,44 +30,46 @@ Todo:
     - Add more descriptive failure messages for index generation
 """
 
-import itertools
-import glob
-import sys
-import os
 import builtins
+import glob
+import itertools
+import os
+import sys
+
 import pandas
-import whoosh.index
+
 import whoosh.fields
-import whoosh.searching
+import whoosh.index
 import whoosh.qparser
-
-
-def eprint(*args, **kwargs):
-    """
-    Helper to print errors/exceptions to
-    stderr, this is because this tool
-    is currently used in a cron job
-    """
-
-    print(*args, file=sys.stderr, **kwargs)
+import whoosh.searching
 
 
 def glob_multiple_types(my_dir, *patterns):
-    """
-    Gathers files matching multiple
-    patterns from a desired directory
-    """
+    """Return files matching multiple patterns from a desired directory.
 
-    return itertools.chain.from_iterable(
+    Parameters
+    ----------
+    my_dir: string
+        Path to the directory to be processed
+    *patterns: list
+        List of patterns to match
+
+    Returns
+    --------
+    file_list: itertools.chain
+        Full file paths for files that match pattern
+
+    """
+    file_list = itertools.chain.from_iterable(
         glob.iglob(my_dir+"/**/"+pattern,
                    recursive=True) for pattern in patterns)
 
+    return file_list
+
 
 def gen_index(my_dir, index_name="indexdir"):
-
     """
-    Function that takes a directory and indexes the ipynb,
-    rmd, and md files for ingestion and searching.
+    Return the directory and index the files for ingestion and searching.
 
     Todo:
         * Manage json content instead of reading whole
@@ -77,7 +78,6 @@ def gen_index(my_dir, index_name="indexdir"):
     :param dir: Directory that needs to be indexed
     :return: whoosh index
     """
-
     # Get paths for all the notebooks, rmd files, and
     # markdown
 
@@ -119,7 +119,7 @@ def gen_index(my_dir, index_name="indexdir"):
 
             except PermissionError as exception:
                 # If there is a permission error log itertools and keep going
-                eprint(str(exception))
+                sys.stderr.write(str(exception))
 
         writer.commit()
 
@@ -130,11 +130,20 @@ def gen_index(my_dir, index_name="indexdir"):
 
 def do_search(search_term, index_name="indexdir"):
     """
-    Performs search for given term on an index in the file path
+    Return search for given term on an index in the file path.
 
-    :param search_term: search term to find across indexed files
-    :param index_name:  index name and path to search; default='indexdir'
-    :return: whoosh index
+    Parameters
+    ----------
+    search_term: string
+        search term to find across indexed files
+     index_name: whoosh index
+        index name and path to search; default='indexdir'
+
+    Returns
+    -------
+    my_results: pandas DataFrame
+        Datframe of the results
+
     """
     # Maybe parameterize this
     if os.path.exists(index_name):
@@ -163,6 +172,7 @@ def do_search(search_term, index_name="indexdir"):
                     hitertools_dict['highlight'] = '**MISSING FILE**'
                 res_list.append(hitertools_dict)
 
-        return pandas.DataFrame(res_list)
+        my_results = pandas.DataFrame(res_list)
 
+        return my_results
     return False

@@ -32,17 +32,21 @@ Todo:
 
 # Standard
 import argparse
-import sys
 import os
-import pandas
+import sys
 
 # Dash tools
 import dash
-import document_management.document_indexer
+
 import dash_core_components
+
 import dash_html_components
+
 import dash_table_experiments
 
+import document_management.document_indexer
+
+import pandas
 
 APP = dash.Dash()
 # Use an open access CSS to make the page look nicer
@@ -55,19 +59,17 @@ APP.css.append_css({
 # Disable for pylint string arguments
 # pylint: disable=unused-argument
 def parse(my_args):
-    """
-    Argument parser
-    """
+    """Return a dict of the argument params and values."""
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+
     parser.add_argument('-d',
                         '--d',
                         help="full input path to a Whoosh document index",
                         dest="index_dir",
                         type=str,
-                        required=True
-                       )
+                        required=True)
     return parser.parse_args()
 
 
@@ -76,10 +78,10 @@ MY_ARGS = parse(sys.argv)
 
 def generate_table(dataframe, max_rows=10):
     """
-    Generation of HTML tables from pandas
-    dataframes to go in DCC HTML
-    """
+    Return HTML tables from pandas dataframes.
 
+    This is used in for the DCC elements in the dashboard
+    """
     # pylint: disable=maybe-no-member
     return dash_html_components.Table(
         # Header
@@ -136,10 +138,7 @@ APP.layout = dash_html_components.Div(className='container', children=[
     dash.dependencies.Output('results_table', 'rows'),
     [dash.dependencies.Input('search_term', 'value')])
 def update_output(input_value):
-    """
-    Updates the table output after a query has been run
-    """
-
+    """Return the updated table output after a query has been run."""
     if input_value != 'search term':
         results = document_management.document_indexer.do_search(
             input_value,
@@ -158,6 +157,8 @@ def update_output(input_value):
      dash.dependencies.Input('results_table', 'selected_row_indices')])
 def render_markdown(rows, selected_row_indices):
     """
+    Return document to the Dash IFrame based on table selection.
+
     Actually render document content in the browser, either as a div
     if the content is markdown or in an iframe if the content is
     html
@@ -203,6 +204,11 @@ def render_markdown(rows, selected_row_indices):
                         return dash_core_components.Markdown(data)
                 return dash_core_components.Markdown(
                     """## Unsupported filetype""")
+            else:
+                return dash_core_components.Markdown(
+                    """## File not found""")
+    else:
+        return dash_core_components.Markdown(""" """)
 
 
 if __name__ == '__main__':
