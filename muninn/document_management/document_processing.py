@@ -37,7 +37,7 @@ import nbconvert
 
 import nbformat
 
-import document_indexer
+from .document_indexer import *
 
 
 # Use grip library to convert md files to html
@@ -187,4 +187,4 @@ def crawl_and_process(out_file, input_dir):
             prep_html(file_ext, my_file)
 
     # Regenerate the index
-    document_indexer.gen_index(input_dir, out_file)
+    gen_index(input_dir, out_file)

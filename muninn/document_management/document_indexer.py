@@ -26,7 +26,6 @@ iterating available files, and operating whoosh-based searches
 on generated indicies
 
 Todo:
-    - Validate the directory structure for analysis projects
     - Add more descriptive failure messages for index generation
 """
 
@@ -156,21 +155,9 @@ def do_search(search_term, index_name="indexdir"):
         with whoosh_index.searcher() as searcher:
             results = searcher.search(whoosh_query)
             res_list = []
-            # iterate through the results, find if the file
-            # still exists (sometimes it gets deleted),
-            # then read the contents
-            for hitertools in results:
-                hitertools_dict = dict(hitertools)
-                if os.path.isfile(hitertools['path']):
-                    with open(hitertools['path'], encoding='utf-8') as fileobj:
-                        file_contents = fileobj.read()
-                        hitertools_dict['highlight'] = hitertools.highlights(
-                            "content", text=file_contents)
-                else:
-                    # If the file is missing report that in
-                    # the highlights column
-                    hitertools_dict['highlight'] = '**MISSING FILE**'
-                res_list.append(hitertools_dict)
+            # iterate through the results
+            # and make a list of the dicts
+            [res_list.append(dict(hitertools)) for hitertools in results]
 
         my_results = pandas.DataFrame(res_list)
 

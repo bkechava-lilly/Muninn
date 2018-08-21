@@ -114,11 +114,9 @@ APP.layout = dash_html_components.Div(className='container', children=[
             id='search_term', value='search term', type="text"),
         dash_html_components.Div(
             dash_table_experiments.DataTable(rows=[{'title': '',
-                                                    'path': '',
-                                                    'highlight': ''}],
+                                                    'path': ''}],
                                              columns=['title',
-                                                      'path',
-                                                      'highlight'],
+                                                      'path'],
                                              row_selectable=True,
                                              sortable=True,
                                              editable=True,
@@ -178,7 +176,7 @@ def render_markdown(rows, selected_row_indices):
             _, file_extension = os.path.splitext(file_path)
             # Right now the file extensions are hard-coded
             # but I want to make this something that is configurable
-            markdown = ['.Rmd', '.md', '.MD', '.RMD']
+            markdown = ['.md', '.MD']
             html_files = ['.html', '.HTML']
             supported_types = markdown+html_files
 
@@ -211,7 +209,7 @@ def render_markdown(rows, selected_row_indices):
         return dash_core_components.Markdown(""" """)
 
 
-def run_server():
+def run_server(host='0.0.0.0'):
     """Create server process."""
     # Startup the server
-    APP.run_server(debug=True, host='0.0.0.0')
+    APP.run_server(debug=True, host=host)
