@@ -44,8 +44,7 @@ import dash_html_components
 
 import dash_table_experiments
 
-import document_management.document_indexer
-
+from muninn import document_management
 import pandas
 
 APP = dash.Dash()
@@ -54,26 +53,6 @@ MY_CSS_URL = "https://codepen.io/chriddyp/pen/bWLwgP.css"
 APP.css.append_css({
     "external_url": MY_CSS_URL
     })
-
-
-# Disable for pylint string arguments
-# pylint: disable=unused-argument
-def parse(my_args):
-    """Return a dict of the argument params and values."""
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-
-    parser.add_argument('-d',
-                        '--d',
-                        help="full input path to a Whoosh document index",
-                        dest="index_dir",
-                        type=str,
-                        required=True)
-    return parser.parse_args()
-
-
-MY_ARGS = parse(sys.argv)
 
 
 def generate_table(dataframe, max_rows=10):
@@ -140,7 +119,7 @@ def update_output(input_value):
     if input_value != 'search term':
         results = document_management.document_indexer.do_search(
             input_value,
-            MY_ARGS.index_dir)
+            APP.config['index_dir'])
         rows = results.to_dict('records')
     return rows
 
@@ -209,7 +188,8 @@ def render_markdown(rows, selected_row_indices):
         return dash_core_components.Markdown(""" """)
 
 
-def run_server(host='0.0.0.0'):
+def run_server(host='0.0.0.0', index_dir='.'):
     """Create server process."""
     # Startup the server
+    APP.config['index_dir'] = index_dir
     APP.run_server(debug=True, host=host)

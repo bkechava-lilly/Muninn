@@ -4,7 +4,7 @@ dash_table_experiments==0.5.0
 pandas==0.20.3
 dash_core_components==0.12.7
 Whoosh==2.7.4
-markdown2~>2.3.4
+markdown2>2.3.4
 nbformat==4.3.0
 dash==0.17.7
 dash-renderer==0.10.0
