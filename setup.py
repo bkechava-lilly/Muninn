@@ -14,8 +14,10 @@ config = {
     'version': '0.1',
     'install_requires': ['numpy', 'matplotlib', 'whoosh', 'dash',
                          'dash-core-components', 'dash-renderer',
-                         'dash_table_experiments', 'pandas', 'markdown'],
-    'packages': ['muninn', 'muninn.display', 'muninn.document_management'],
+                         'dash_table_experiments', 'pandas', 'markdown2',
+                         'dash_html_components', 'nbconvert'],
+    'packages': ['muninn', 'muninn.dashboarding',
+                 'muninn.document_management'],
     'scripts': [],
     'name': 'muninn'
 }
