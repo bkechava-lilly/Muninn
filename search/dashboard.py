@@ -207,4 +207,4 @@ def render_markdown(rows, selected_row_indices):
 
 if __name__ == '__main__':
     # Startup the server
-    APP.run_server(debug=True, host='0.0.0.0')
+    APP.run_server(debug=True, host='0.0.0.0',port=8888)
