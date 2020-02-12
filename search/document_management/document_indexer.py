@@ -136,6 +136,7 @@ def do_search(search_term, index_name="indexdir"):
     :param index_name:  index name and path to search; default='indexdir'
     :return: whoosh index
     """
+
     # Maybe parameterize this
     if os.path.exists(index_name):
         whoosh_index = whoosh.index.open_dir(index_name)
@@ -162,7 +163,6 @@ def do_search(search_term, index_name="indexdir"):
                     # the highlights column
                     hitertools_dict['highlight'] = '**MISSING FILE**'
                 res_list.append(hitertools_dict)
-
         return pandas.DataFrame(res_list)
 
     return False

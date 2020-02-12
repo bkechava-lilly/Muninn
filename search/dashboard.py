@@ -44,7 +44,8 @@ import dash_html_components
 import dash_table_experiments
 
 
-APP = dash.Dash()
+APP = dash.Dash(name='dashboard',
+                csrf_protect=False)
 # Use an open access CSS to make the page look nicer
 MY_CSS_URL = "https://codepen.io/chriddyp/pen/bWLwgP.css"
 APP.css.append_css({
@@ -110,16 +111,15 @@ APP.layout = dash_html_components.Div(className='container', children=[
     dash_html_components.Div([
         dash_core_components.Input(
             id='search_term', value='search term', type="text"),
+        dash_html_components.Button('Submit', type='submit', id='submit'),
         dash_html_components.Div(
             dash_table_experiments.DataTable(rows=[{'title': '',
-                                                    'path': '',
-                                                    'highlight': ''}],
+                                                    'path': ''}],
                                              columns=['title',
-                                                      'path',
-                                                      'highlight'],
+                                                      'path'],
                                              row_selectable=True,
                                              sortable=True,
-                                             editable=True,
+                                             resizable=True,
                                              enable_drag_and_drop=False,
                                              id='results_table'),
             id='hidden_div'),
@@ -134,7 +134,9 @@ APP.layout = dash_html_components.Div(className='container', children=[
 
 @APP.callback(
     dash.dependencies.Output('results_table', 'rows'),
-    [dash.dependencies.Input('search_term', 'value')])
+    [],
+    [dash.dependencies.State('search_term', 'value')],
+    [dash.dependencies.Event('submit','click')])
 def update_output(input_value):
     """
     Updates the table output after a query has been run
@@ -205,6 +207,7 @@ def render_markdown(rows, selected_row_indices):
                     """## Unsupported filetype""")
 
 
+
 if __name__ == '__main__':
     # Startup the server
-    APP.run_server(debug=True, host='0.0.0.0',port=8888)
+    APP.run_server(debug=True, host='0.0.0.0',port=8050)
