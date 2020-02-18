@@ -52,7 +52,10 @@ APP.css.append_css({
     "external_url": MY_CSS_URL
     })
 
-
+APP.config.update({
+'requests_pathname_prefix': './',
+'routes_pathname_prefix': './'
+})
 # Disable for pylint string arguments
 # pylint: disable=unused-argument
 def parse(my_args):
